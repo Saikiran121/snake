@@ -30,7 +30,7 @@ jobs:
             - name: Build
               run: npm run build --if-present
             - name: Test
-              run: npm test
+              run: jest --coverage
             - name: Lint
               run: npm run lint
             - name: Format
