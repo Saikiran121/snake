@@ -15,7 +15,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [22.x]
+                node-version: [24]
                 # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
         steps:
@@ -40,3 +40,9 @@ jobs:
               with:
                   coverage-file: coverage/lcov.info
                   minimum-coverage: 80
+
+            - name: Upload Coverage Artifact
+              uses: actions/upload-artifact@v7
+              with:
+                  name: coverage-report
+                  path: coverage/
