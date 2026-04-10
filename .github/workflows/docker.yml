@@ -36,7 +36,9 @@ jobs:
               uses: aquasecurity/trivy-action@v0.24.0
               with:
                   image-ref: saikiran8050/snake:${{ github.sha }}
-                  format: table
+                  format: template
+                  template: "@/contrib/html.tpl"
+                  output: trivy-report.html
                   exit-code: 1
                   ignore-unfixed: true
                   severity: CRITICAL,HIGH
