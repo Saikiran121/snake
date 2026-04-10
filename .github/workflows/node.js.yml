@@ -41,7 +41,7 @@ jobs:
                   coverage-file: coverage/lcov.info
                   minimum-coverage: 80
 
-            - name: Upload Coverage Artifact
+            - name: Upload Coverage Artifacts
               uses: actions/upload-artifact@v7
               with:
                   name: coverage-report
