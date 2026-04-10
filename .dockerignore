@@ -1,0 +1,11 @@
+node_modules
+npm-debug.log
+.git
+.github
+tests
+coverage
+eslint.config.mjs
+.eslintrc.json
+.eslintignore
+.prettierrc
+scores.json
