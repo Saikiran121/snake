@@ -38,5 +38,5 @@ jobs:
             - name: Check test Coverage
               uses: tluijken/code-coverage-threshold@v1
               with:
-                  coverage-file: coverage/tests.lcov
+                  coverage-file: coverage/lcov.info
                   minimum-coverage: 80
