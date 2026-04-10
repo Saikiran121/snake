@@ -15,11 +15,7 @@
     "dependencies": {
         "body-parser": "^2.2.2",
         "cors": "^2.8.6",
-        "cross-spawn": "^7.0.6",
-        "express": "^5.2.1",
-        "glob": "^13.0.6",
-        "minimatch": "^10.2.5",
-        "tar": "^7.5.13"
+        "express": "^5.2.1"
     },
     "devDependencies": {
         "eslint": "^8.57.1",
