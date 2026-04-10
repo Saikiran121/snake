@@ -8,8 +8,11 @@ WORKDIR /usr/src/app
 # This allows Docker to cache the dependencies installation step
 COPY package*.json ./
 
-# Install only production dependencies (skipping Jest, ESLint, etc.)
-RUN npm ci --only=production
+# Upgrade OS packages to patch libcrypto, libssl, and zlib CVEs
+RUN apk update && apk upgrade --no-cache
+
+# Install only production dependencies
+RUN npm ci --omit=dev
 
 # Copy the rest of the application files
 COPY . .
