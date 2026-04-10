@@ -43,6 +43,12 @@ jobs:
                   ignore-unfixed: true
                   severity: CRITICAL,HIGH
 
+            - name: Upload Trivy HTML report
+              uses: actions/upload-artifact@v4
+              with:
+                  name: trivy-report
+                  path: trivy-report.html
+
             - name: Build and push
               uses: docker/build-push-action@v7
               with:
