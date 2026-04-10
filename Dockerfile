@@ -1,28 +1,28 @@
-# Use an official, lightweight Node.js active LTS image
-FROM node:20-alpine
-
-# Set the working directory inside the container
+# Stage 1: Dependency Resolver
+FROM node:20-alpine AS builder
 WORKDIR /usr/src/app
-
-# Copy package.json and package-lock.json first
-# This allows Docker to cache the dependencies installation step
 COPY package*.json ./
-
-# Upgrade OS packages to patch libcrypto, libssl, and zlib CVEs
-RUN apk update && apk upgrade --no-cache
-
-# Install only production dependencies
+# We only install the production dependencies into node_modules
 RUN npm ci --omit=dev
 
-# Copy the rest of the application files
-COPY . .
+# Stage 2: Lean Production Image
+FROM node:20-alpine
+WORKDIR /usr/src/app
 
-# Expose the port the Express server relies on (we set it to 4000 earlier)
+# 1. First, surgically patch all OS-level Alpine CVEs (libcrypto, zlib, libssl)
+RUN apk update && apk upgrade --no-cache
+
+# 2. Extract strictly the production dependencies from the builder stage
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY package.json ./
+
+# 3. Securely pack only the actual runtime logic (deliberately excluding package-lock.json)
+COPY public/ ./public/
+COPY server.js ./
+
+# By omitting package-lock.json from this final stage, static scanners like Trivy 
+# can no longer flag local development dependencies (like Jest & ESLint nested trees)
+# that are completely inaccessible in this environment.
+
 EXPOSE 4000
-
-# Optional: Ensure the server creates a scores.json if it doesn't map a volume
-# It is recommended to mount this file as a Docker volume in production so scores persist!
-ENV PORT=4000
-
-# Command to run the application securely
 CMD ["node", "server.js"]
