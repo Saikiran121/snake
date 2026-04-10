@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Snake</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated background element -->
+    <div class="background-animation"></div>
+    
+    <div class="game-container">
+        <!-- Header with Glassmorphism -->
+        <header class="game-header glow-panel">
+            <h1>Neon Snake</h1>
+            <div class="stats">
+                <div class="score-card">
+                    <span class="label">Score</span>
+                    <span id="score" class="value">0</span>
+                </div>
+                <div class="score-card highlight-card">
+                    <span class="label">Local Best</span>
+                    <span id="high-score" class="value">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Game Area -->
+        <main class="game-board-wrapper glow-panel">
+            <!-- The standard 400x400 grid size -->
+            <canvas id="game-board" width="400" height="400"></canvas>
+            
+            <!-- Overlays for game states -->
+            <div id="start-overlay" class="overlay active">
+                <div class="logo-wrapper">
+                    <div class="snake-logo-dot"></div>
+                    <h2>Neon Snake</h2>
+                </div>
+                <p>Welcome to the grid.</p>
+                <button id="start-btn" class="primary-btn">Initialize</button>
+                
+                <div class="leaderboard-preview">
+                    <h3>Global Top 5</h3>
+                    <ul id="start-leaderboard" class="leaderboard-list">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div id="game-over-overlay" class="overlay">
+                <h2>System Failure</h2>
+                <p>Data Collected: <span id="final-score" class="highlight">0</span></p>
+                
+                <div class="score-submit-form" id="score-submit-form">
+                    <p>Enter your ID to rank globally:</p>
+                    <div class="input-group">
+                        <input type="text" id="player-name" placeholder="ABC" maxlength="3" autocomplete="off" />
+                        <button id="submit-score-btn" class="submit-btn">&rarr;</button>
+                    </div>
+                </div>
+                
+                <button id="restart-btn" class="primary-btn">Reboot System</button>
+            </div>
+        </main>
+
+        <!-- Footer / Controls Info -->
+        <footer class="game-footer glow-panel">
+            <div class="controls-info">
+                <div class="key"><span>&uarr;</span></div>
+                <div class="key"><span>&darr;</span></div>
+                <div class="key"><span>&larr;</span></div>
+                <div class="key"><span>&rarr;</span></div>
+                <p>to navigate the grid</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Script loading -->
+    <script src="script.js"></script>
+</body>
+</html>
