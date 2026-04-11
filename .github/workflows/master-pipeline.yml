@@ -1,0 +1,128 @@
+name: Enterprise CI/CD Pipeline
+
+on:
+  push:
+    branches: ["main", "test-branch"]
+  pull_request:
+    branches: ["main", "test-branch"]
+
+jobs:
+  node-build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [24]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build --if-present
+
+      - name: Test
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format
+        run: npm run format
+
+      - name: Check test Coverage
+        uses: tluijken/code-coverage-threshold@v1
+        with:
+          coverage-file: coverage/lcov.info
+          minimum-coverage: 80
+
+      - name: Upload Coverage Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+
+  secret-scan:
+    needs: [node-build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Secret Scanning Review Action"
+        uses: advanced-security/secret-scanning-review-action@v2
+        with:
+          token: ${{ secrets.SECRET_SCAN_REVIEW_GITHUB_TOKEN }}
+          fail-on-alert: true
+          fail-on-alert-exclude-closed: true
+          runtime: "python"
+
+  dependency-review:
+    needs: [secret-scan]
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "Dependency Review"
+        uses: actions/dependency-review-action@v4
+
+  docker-build:
+    needs: [secret-scan, dependency-review]
+    if: always() && needs.secret-scan.result == 'success' && (needs.dependency-review.result == 'success' || needs.dependency-review.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v4
+        with:
+          username: ${{ secrets.DOCKERHUB_UNAME }}
+          password: ${{ secrets.DOCKERHUB_PASS }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v7
+        with:
+          push: false
+          tags: saikiran8050/snake:${{ github.sha }}
+          load: true
+
+      - name: Run Trivy scan
+        uses: aquasecurity/trivy-action@v0.24.0
+        with:
+          image-ref: saikiran8050/snake:${{ github.sha }}
+          format: template
+          template: "@/contrib/html.tpl"
+          output: trivy-report.html
+          exit-code: 1
+          ignore-unfixed: true
+          severity: CRITICAL,HIGH
+
+      - name: Upload Trivy HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report
+          path: trivy-report.html
+
+      - name: Build and push
+        uses: docker/build-push-action@v7
+        with:
+          push: true
+          tags: |
+            saikiran8050/snake:${{ github.sha }}
+            saikiran8050/snake:latest
