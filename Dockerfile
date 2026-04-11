@@ -12,6 +12,10 @@ WORKDIR /usr/src/app
 # 1. First, surgically patch all OS-level Alpine CVEs (libcrypto, zlib, libssl)
 RUN apk update && apk upgrade --no-cache
 
+# 2. Strip the natively bundled package manager (npm) and its vulnerable dependencies (tar, glob, etc)
+# Since Stage 2 only runs "node server.js", npm is entirely obsolete payload weight!
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
+
 # 2. Extract strictly the production dependencies from the builder stage
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY package.json ./
