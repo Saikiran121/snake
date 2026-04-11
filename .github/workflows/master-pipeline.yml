@@ -144,7 +144,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
-      - name: Deploy to EKS cluster
+      - name: Initialize Kubernetes manifests
+        uses: kodermax/kubectl-aws-eks@v1
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        with:
+          args: apply -f k8s/
+
+      - name: Deploy imperative Image to EKS cluster
         uses: kodermax/kubectl-aws-eks@v1
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
