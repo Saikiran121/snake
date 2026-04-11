@@ -50,6 +50,7 @@ jobs:
 
   secret-scan:
     needs: [node-build]
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -76,8 +77,8 @@ jobs:
         uses: actions/dependency-review-action@v4
 
   docker-build:
-    needs: [secret-scan, dependency-review]
-    if: always() && needs.secret-scan.result == 'success' && (needs.dependency-review.result == 'success' || needs.dependency-review.result == 'skipped')
+    needs: [node-build, secret-scan, dependency-review]
+    if: always() && needs.node-build.result == 'success' && (needs.secret-scan.result == 'success' || needs.secret-scan.result == 'skipped') && (needs.dependency-review.result == 'success' || needs.dependency-review.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
