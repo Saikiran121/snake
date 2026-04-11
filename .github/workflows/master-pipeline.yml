@@ -5,6 +5,7 @@ on:
     branches: ["main", "test-branch"]
   pull_request:
     branches: ["main", "test-branch"]
+  workflow_dispatch:
 
 jobs:
   node-build:
@@ -130,7 +131,7 @@ jobs:
 
   deploy-to-eks:
     needs: [docker-build]
-    if: always() && needs.docker-build.result == 'success'
+    if: github.event_name == 'workflow_dispatch' && needs.docker-build.result == 'success'
     name: Deploy to EKS cluster
     runs-on: ubuntu-latest
     steps:
