@@ -162,6 +162,7 @@ jobs:
 
   smoke-test:
     needs: [deploy-to-eks]
+    if: always() && needs.deploy-to-eks.result == 'success'
     runs-on: ubuntu-latest
     name: Smoke Test Application
     steps:
