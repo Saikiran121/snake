@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: snake
+  labels:
+    app: snake
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: snake
+  template:
+    metadata:
+      labels:
+        app: snake
+    spec:
+      containers:
+        - name: snake
+          image: saikiran8050/snake:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"

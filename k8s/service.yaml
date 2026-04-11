@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: snake-service
+  labels:
+    app: snake
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: "external"
+    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
+    service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:ap-south-1:${AWS_ACCOUNT_ID}:certificate/${CERT_ID}"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+spec:
+  type: LoadBalancer
+  selector:
+    app: snake
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 4000
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 4000
