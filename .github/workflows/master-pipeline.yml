@@ -130,6 +130,7 @@ jobs:
 
   deploy-to-eks:
     needs: [docker-build]
+    if: always() && needs.docker-build.result == 'success'
     name: Deploy to EKS cluster
     runs-on: ubuntu-latest
     steps:
