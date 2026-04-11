@@ -159,3 +159,25 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         with:
           args: set image deployment/snake snake=$IMAGE_NAME:$IMAGE_TAG
+
+  smoke-test:
+    needs: [deploy-to-eks]
+    runs-on: ubuntu-latest
+    name: Smoke Test Application
+    steps:
+      - name: Wait for deployment rollout
+        run: sleep 30
+
+      - name: Check application health (HTTP 200)
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://snake.saikbiradar.in)
+          echo "HTTP Status: $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Smoke test failed!"
+            exit 1
+          fi
+
+      - name: Check response content
+        run: |
+          RESPONSE=$(curl -s https://snake.saikbiradar.in)
+          echo "$RESPONSE" | grep -i "snake" || (echo "Content check failed" && exit 1)
